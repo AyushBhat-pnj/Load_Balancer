@@ -1,0 +1,35 @@
+- hosts: myweb
+  tasks:
+  - name: "Installing httpd" 
+    package:
+      name: "httpd"
+  - firewalld:
+      port: 80/tcp
+      permanent: true
+      state: enabled
+      permanent: yes
+      immediate: yes
+  - copy:
+      dest: "/var/www/html/index.html"
+      content: "This is testing for load balancer"
+  - service:
+      name: "httpd"
+      state: restarted
+
+- hosts: mylb
+  tasks:
+  - name: "Haproxy for load balancer" 
+    package:
+      name: "haproxy"
+  - template:
+      src: "haproxy.cfg.j2"
+      dest: "/etc/haproxy/haproxy.cfg"
+  - service: 
+      name: "haproxy"
+      state: restarted
+  - firewalld:
+      port: 8080/tcp
+      permanent: true
+      state: enabled
+      permanent: yes
+      immediate: yes
